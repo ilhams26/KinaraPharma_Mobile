@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Service API Mobile
 class ApiService {
-  static const String baseUrl = "http://127.0.0.1:8000/api";
+  static const String baseUrl = "http://192.168.1.103:8000/api";
 
   static Future<bool> requestOtp(String phone) async {
     final response = await http.post(
