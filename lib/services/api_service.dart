@@ -11,7 +11,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/request-otp"),
-      
+
         headers: {'Accept': 'application/json'},
         body: {'no_hp': phone},
       );
@@ -32,9 +32,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/login-pembeli"),
-        headers: {
-          'Accept': 'application/json',
-        }, 
+        headers: {'Accept': 'application/json'},
         body: {'no_hp': phone, 'otp': otp},
       );
 
@@ -53,6 +51,52 @@ class ApiService {
     } catch (e) {
       print("ERROR VERIFY: $e");
       return null;
+    }
+  }
+
+  // Fungsi Checkout
+  static Future<bool> checkout(
+    List<Map<String, dynamic>> cartItems,
+    String paymentMethod,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null) return false;
+
+      // 🚨 MENYESUAIKAN DENGAN VALIDASI LARAVEL
+      Map<String, dynamic> payload = {
+        'items': cartItems
+            .map(
+              (item) => {
+                'obat_id': item['id'], // Pastikan ada 'id' di data keranjang
+                'qty': item['qty'],
+                'harga': item['harga'], // Laravel minta harga
+              },
+            )
+            .toList(),
+        'payment_method': paymentMethod, // Laravel minta 'midtrans' atau 'cash'
+      };
+
+      final response = await http.post(
+        Uri.parse("$baseUrl/orders/checkout"),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(payload),
+      );
+
+      print("=== DEBUG CHECKOUT ===");
+      print("Status: ${response.statusCode}");
+      print("Body: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("Error Checkout: $e");
+      return false;
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
+import '../main.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,9 +11,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool isDarkMode = false; // State lokal sementara untuk switch
+  bool isDarkMode = false;
 
-  // Fungsi memunculkan pop-up konfirmasi keluar
   void _showLogoutDialog() {
     showDialog(
       context: context,
@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.lock_outline,
                       color: colorScheme.primary,
                     ),
-                    title: const Text("Buat / Ubah Password"),
+                    title: const Text("Edit Password"),
                     subtitle: const Text(
                       "Amankan akun Anda",
                       style: TextStyle(fontSize: 12),
@@ -139,12 +139,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: const Text("Mode Gelap"),
                     trailing: Switch(
                       activeColor: colorScheme.primary,
-                      value: isDarkMode,
+                      value: themeNotifier.value == ThemeMode.dark,
                       onChanged: (value) {
-                        setState(() {
-                          isDarkMode = value;
-                          // TODO: Integrasikan state ini dengan main.dart ThemeProvider
-                        });
+                        themeNotifier.value = value
+                            ? ThemeMode.dark
+                            : ThemeMode.light;
                       },
                     ),
                   ),
@@ -158,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    onTap: _showLogoutDialog, // Panggil pop-up konfirmasi
+                    onTap: _showLogoutDialog,
                   ),
                 ],
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -10,8 +11,8 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   // Dummy data sementara sebelum disambung ke API Laravel
   List<Map<String, dynamic>> cartItems = [
-    {"nama": "Panadol Extra 500mg", "harga": 12500, "qty": 2},
-    {"nama": "Vitamin C IPI", "harga": 8000, "qty": 1},
+    {"id": 1, "nama": "Panadol Extra 500mg", "harga": 12500, "qty": 2},
+    {"id": 2, "nama": "Vitamin C IPI", "harga": 8000, "qty": 1},
   ];
 
   int get totalHarga {
@@ -183,7 +184,40 @@ class _CartScreenState extends State<CartScreen> {
                 ],
               ),
               ElevatedButton(
-                onPressed: cartItems.isEmpty ? null : () {},
+                onPressed: cartItems.isEmpty
+                    ? null
+                    : () async {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Memproses pesanan...")),
+                        );
+
+                        bool sukses = await ApiService.checkout(
+                          cartItems,
+                          "midtrans",
+                        );
+
+                        if (sukses) {
+                          setState(() {
+                            cartItems.clear();
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Checkout Berhasil!",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Gagal Checkout. Cek Console."),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,

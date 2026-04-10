@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'home_screen.dart';
+import 'main_screen.dart';
 
-// Halaman Login Pembeli (Mobile)
 enum LoginState { inputPhone, inputOtp }
 
 class LoginScreen extends StatefulWidget {
@@ -56,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
           );
         }
       } else {

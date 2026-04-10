@@ -261,21 +261,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: colorScheme.primary,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        elevation: 10,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
-            label: 'Pesanan',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-        ],
-      ),
     );
   }
 
