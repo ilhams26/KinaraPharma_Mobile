@@ -127,7 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Contoh untuk TextField Nomor HP & OTP
                   decoration: InputDecoration(
                     labelText: 'Nomor HP', // Atau 'Masukkan OTP'
-                    prefixText: '+62 ',
                     filled: true,
                     fillColor: Colors.white, // Background putih bersih
                     // Border saat diam (Lime Green)
