@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   "Masuk Ke Akun Anda",
                   style: TextStyle(
-                    color: Color(0xFFBDBDBD),
+                    color: Color.fromARGB(255, 43, 126, 47),
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -124,28 +124,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   enabled: _currentState == LoginState.inputPhone,
                   keyboardType: TextInputType.phone,
                   style: TextStyle(color: colorScheme.onSurface),
+                  // Contoh untuk TextField Nomor HP & OTP
                   decoration: InputDecoration(
-                    labelText: 'Nomor HP',
+                    labelText: 'Nomor HP', // Atau 'Masukkan OTP'
                     prefixText: '+62 ',
                     filled: true,
-                    fillColor: isDark
-                        ? Colors.black26
-                        : const Color(0xFFF5F5EC),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(
-                        color: colorScheme.primary,
-                        width: 2,
+                    fillColor: Colors.white, // Background putih bersih
+                    // Border saat diam (Lime Green)
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF8BC34A),
+                        width: 1.5,
                       ),
                     ),
-                    prefixIcon: const Icon(
-                      Icons.phone_android,
-                      color: Color(0xFFBDBDBD),
+
+                    // Border saat diklik/diketik (Hijau Biasa lebih tebal)
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF4CAF50),
+                        width: 2.5,
+                      ),
                     ),
+                    // ... prefix icon ...
                   ),
                 ),
                 const SizedBox(height: 15),
@@ -208,11 +210,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _currentState == LoginState.inputPhone
-                          ? colorScheme.primary
-                          : colorScheme.secondary,
-                      foregroundColor: _currentState == LoginState.inputPhone
-                          ? colorScheme.onPrimary
+                          ? colorScheme.secondary
                           : colorScheme.primary,
+                      foregroundColor: _currentState == LoginState.inputPhone
+                          ? colorScheme.onSecondary
+                          : colorScheme.surface,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),

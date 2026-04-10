@@ -14,21 +14,23 @@ class MyApp extends StatelessWidget {
       title: 'Apotek Kinara Mobile',
       debugShowCheckedModeBanner: false,
 
-      //(LIGHT MODE
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8BC34A), // Light Green Base
-          primary: const Color(0xFFB0CF0B), // Lime Green (Untuk aksen cerah)
-          secondary: const Color(0xFF2E7D32), // Hijau Agak Tua (Untuk Button)
-          surface: const Color(0xFFF9F9F9), // Latar belakang sangat cerah/putih
+          seedColor: const Color(0xFF4CAF50), // Hijau Biasa (Utama)
+          primary: const Color(0xFF4CAF50), // Hijau Biasa
+          secondary: const Color(
+            0xFF8BC34A,
+          ), // Light Green / Lime (Aksen & Border)
+          surface: Colors.white,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF9F9F9),
+        scaffoldBackgroundColor: const Color(
+          0xFFF9F9F9,
+        ), // Latar belakang abu-abu sangat pudar
 
-        // Aturan Global untuk semua Tombol (ElevatedButton)
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2E7D32), // Button hijau agak tua
-            foregroundColor: Colors.white, // Teks button putih
+            backgroundColor: const Color(0xFF4CAF50), // Button Hijau Biasa
+            foregroundColor: Colors.white, // Teks DI JAMIN putih
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -36,10 +38,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
 
-        // Aturan Global untuk AppBar
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white, 
-          foregroundColor: Color(0xFF2E7D32), // Icon/Teks di AppBar hijau tua
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF4CAF50), 
           elevation: 0,
           centerTitle: true,
         ),

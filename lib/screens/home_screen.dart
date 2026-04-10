@@ -9,7 +9,6 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // Logo Kinara Pharma di tengah AppBar
         title: Image.asset(
           'assets/images/logo_kinara.png',
           height: 40,
@@ -18,15 +17,11 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () {
-              // TODO: Ke Keranjang
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // TODO: Ke Notifikasi
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -36,53 +31,54 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sapaan & Search Bar
             const Text(
               "Halo, Ilham!",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
             Text(
-              "Temukan obat dan vitamin kebutuhanmu",
+              "Mau cari obat apa hari ini?",
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 20),
 
+            // Search Bar
             TextField(
               decoration: InputDecoration(
                 hintText: 'Cari Paracetamol, Vitamin C...',
-                prefixIcon: Icon(Icons.search, color: colorScheme.secondary),
+                prefixIcon: Icon(Icons.search, color: colorScheme.primary),
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
+                  borderSide: BorderSide(
+                    color: colorScheme.secondary,
+                    width: 1,
+                  ),
+                ), // Border cerah
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: colorScheme.primary, width: 2),
-                ),
+                ), // Border fokus
               ),
             ),
             const SizedBox(height: 25),
 
-            // Banner Promo / Fitur Utama
+            // Banner Upload Resep
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withOpacity(0.7),
-                  ],
-                ),
+                color: colorScheme.primary, // Latar hijau biasa
                 borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: colorScheme.primary.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -93,11 +89,11 @@ class HomeScreen extends StatelessWidget {
                         const Text(
                           "Punya Resep Dokter?",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 139, 37, 37),
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
+                        ), // Teks putih sesuai aturan
                         const SizedBox(height: 8),
                         const Text(
                           "Upload resepmu di sini, biar apoteker kami yang siapkan.",
@@ -107,13 +103,8 @@ class HomeScreen extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: colorScheme.secondary,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 8,
-                            ),
-                            minimumSize: Size.zero,
+                            backgroundColor: Colors.white, // Tombol putih
+                            foregroundColor: colorScheme.primary, // Teks hijau
                           ),
                           child: const Text(
                             "Upload Resep",
@@ -134,7 +125,28 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 25),
 
-            // Grid Rekomendasi Obat
+            // TAMBAHAN: KATEGORI OBAT
+            const Text(
+              "Kategori",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _buildCategoryChip("Semua", true, colorScheme),
+                  _buildCategoryChip("Obat Bebas", false, colorScheme),
+                  _buildCategoryChip("Vitamin & Suplemen", false, colorScheme),
+                  _buildCategoryChip("Ibu & Anak", false, colorScheme),
+                  _buildCategoryChip("Herbal", false, colorScheme),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+
+            // Katalog Obat
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -146,7 +158,7 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {},
                   child: Text(
                     "Lihat Semua",
-                    style: TextStyle(color: colorScheme.secondary),
+                    style: TextStyle(color: colorScheme.primary),
                   ),
                 ),
               ],
@@ -160,19 +172,24 @@ class HomeScreen extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.65, // Mengatur proporsi tinggi card
+                childAspectRatio: 0.65,
               ),
               itemBuilder: (context, index) {
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
+                    borderRadius: BorderRadius.circular(
+                      12,
+                    ), // 🚨 PERMINTAAN USER: Border cerah / lime pada card
+                    border: Border.all(
+                      color: colorScheme.secondary,
+                      width: 1.5,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                        color: colorScheme.secondary.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -185,7 +202,7 @@ class HomeScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorScheme.surface,
                             borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12),
+                              top: Radius.circular(10),
                             ),
                           ),
                           child: const Center(
@@ -203,11 +220,11 @@ class HomeScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               "Panadol Extra 500mg",
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -216,7 +233,7 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               "Rp 12.500",
                               style: TextStyle(
-                                color: colorScheme.secondary,
+                                color: colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -226,12 +243,11 @@ class HomeScreen extends StatelessWidget {
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                  ),
+                                // Button hijau biasa (otomatis dari tema global)
+                                child: const Text(
+                                  "Tambah",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                child: const Text("Tambah"),
                               ),
                             ),
                           ],
@@ -247,7 +263,7 @@ class HomeScreen extends StatelessWidget {
       ),
 
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: colorScheme.secondary,
+        selectedItemColor: colorScheme.primary,
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.white,
         elevation: 10,
@@ -259,6 +275,37 @@ class HomeScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
+      ),
+    );
+  }
+
+  // Widget bantuan untuk membuat tombol kategori
+  Widget _buildCategoryChip(
+    String title,
+    bool isSelected,
+    ColorScheme colorScheme,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(right: 10),
+      child: FilterChip(
+        label: Text(
+          title,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        selected: isSelected,
+        onSelected: (bool value) {},
+        backgroundColor: Colors.white,
+        selectedColor: colorScheme.primary,
+        checkmarkColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: isSelected ? colorScheme.primary : Colors.grey.shade300,
+          ),
+        ),
       ),
     );
   }
