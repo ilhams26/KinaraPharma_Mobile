@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'cart_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -6,6 +7,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -17,7 +19,12 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartScreen()),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
@@ -25,7 +32,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -38,7 +44,10 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               "Mau cari obat apa hari ini?",
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white70 : Colors.grey[600],
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -48,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                 hintText: 'Cari Paracetamol, Vitamin C...',
                 prefixIcon: Icon(Icons.search, color: colorScheme.primary),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -56,11 +65,11 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.secondary,
                     width: 1,
                   ),
-                ), // Border cerah
+                ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: colorScheme.primary, width: 2),
-                ), // Border fokus
+                ),
               ),
             ),
             const SizedBox(height: 25),
@@ -70,11 +79,11 @@ class HomeScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.primary, // Latar hijau biasa
+                color: const Color(0xFF4CAF50), // Tetap hijau konstan
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: colorScheme.primary.withOpacity(0.3),
+                    color: const Color(0xFF4CAF50).withOpacity(0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -93,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
-                        ), // Teks putih sesuai aturan
+                        ),
                         const SizedBox(height: 8),
                         const Text(
                           "Upload resepmu di sini, biar apoteker kami yang siapkan.",
@@ -103,8 +112,8 @@ class HomeScreen extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white, // Tombol putih
-                            foregroundColor: colorScheme.primary, // Teks hijau
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF4CAF50),
                           ),
                           child: const Text(
                             "Upload Resep",
@@ -125,7 +134,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 25),
 
-            // TAMBAHAN: KATEGORI OBAT
+            // KATEGORI OBAT
             const Text(
               "Kategori",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -136,11 +145,16 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _buildCategoryChip("Semua", true, colorScheme),
-                  _buildCategoryChip("Obat Bebas", false, colorScheme),
-                  _buildCategoryChip("Vitamin & Suplemen", false, colorScheme),
-                  _buildCategoryChip("Ibu & Anak", false, colorScheme),
-                  _buildCategoryChip("Herbal", false, colorScheme),
+                  _buildCategoryChip("Semua", true, colorScheme, isDark),
+                  _buildCategoryChip("Obat Bebas", false, colorScheme, isDark),
+                  _buildCategoryChip(
+                    "Vitamin & Suplemen",
+                    false,
+                    colorScheme,
+                    isDark,
+                  ),
+                  _buildCategoryChip("Ibu & Anak", false, colorScheme, isDark),
+                  _buildCategoryChip("Herbal", false, colorScheme, isDark),
                 ],
               ),
             ),
@@ -177,17 +191,18 @@ class HomeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(
-                      12,
-                    ), // 🚨 PERMINTAAN USER: Border cerah / lime pada card
+                    // 🚨 PERBAIKAN: Background Card Obat menyesuaikan tema
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: colorScheme.secondary,
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: colorScheme.secondary.withOpacity(0.2),
+                        color: colorScheme.secondary.withOpacity(
+                          isDark ? 0.05 : 0.2,
+                        ),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -200,7 +215,10 @@ class HomeScreen extends StatelessWidget {
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: colorScheme.surface,
+                            // 🚨 PERBAIKAN: Background Placeholder menyesuaikan tema
+                            color: isDark
+                                ? const Color(0xFF2C2C2C)
+                                : Colors.grey.shade100,
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(10),
                             ),
@@ -243,7 +261,6 @@ class HomeScreen extends StatelessWidget {
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: () {},
-                                // Button hijau biasa (otomatis dari tema global)
                                 child: const Text(
                                   "Tambah",
                                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -264,11 +281,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Widget bantuan untuk membuat tombol kategori
+  // Widget Category Chip
   Widget _buildCategoryChip(
     String title,
     bool isSelected,
     ColorScheme colorScheme,
+    bool isDark,
   ) {
     return Container(
       margin: const EdgeInsets.only(right: 10),
@@ -276,19 +294,24 @@ class HomeScreen extends StatelessWidget {
         label: Text(
           title,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
+            color: isSelected
+                ? (isDark ? Colors.black : Colors.white)
+                : (isDark ? Colors.white70 : Colors.black87),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
         selected: isSelected,
         onSelected: (bool value) {},
-        backgroundColor: Colors.white,
+        // 🚨 PERBAIKAN: Background Chip Kategori menyesuaikan tema
+        backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
         selectedColor: colorScheme.primary,
-        checkmarkColor: Colors.white,
+        checkmarkColor: isDark ? Colors.black : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(
-            color: isSelected ? colorScheme.primary : Colors.grey.shade300,
+            color: isSelected
+                ? colorScheme.primary
+                : (isDark ? Colors.grey.shade800 : Colors.grey.shade300),
           ),
         ),
       ),

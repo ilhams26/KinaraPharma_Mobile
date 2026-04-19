@@ -42,18 +42,22 @@ class OrderScreen extends StatelessWidget {
   // Widget bantuan pembuat daftar pesanan dummy
   Widget _buildOrderList(BuildContext context, {required bool isHistory}) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: 2, // Contoh 2 data
       itemBuilder: (context, index) {
         return Card(
-          color: Colors.white,
+          // 🚨 PERBAIKAN: Background Card Pesanan menyesuaikan tema
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           elevation: 2,
           margin: const EdgeInsets.only(bottom: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.shade200),
+            side: BorderSide(
+              color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -74,7 +78,9 @@ class OrderScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isHistory
-                            ? Colors.grey.shade200
+                            ? (isDark
+                                  ? Colors.grey.shade800
+                                  : Colors.grey.shade200)
                             : colorScheme.secondary.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -82,7 +88,7 @@ class OrderScreen extends StatelessWidget {
                         isHistory ? "Selesai" : "Diproses",
                         style: TextStyle(
                           color: isHistory
-                              ? Colors.grey.shade700
+                              ? (isDark ? Colors.white70 : Colors.grey.shade700)
                               : colorScheme.primary,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -92,9 +98,12 @@ class OrderScreen extends StatelessWidget {
                   ],
                 ),
                 const Divider(height: 20),
-                const Text(
+                Text(
                   "1x Panadol Extra 500mg, 1x Vitamin C",
-                  style: TextStyle(color: Colors.black87),
+                  // 🚨 PERBAIKAN: Teks rincian obat menjadi putih di mode gelap
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(

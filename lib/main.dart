@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart'; // Sesuaikan lokasi filemu
+import 'screens/login_screen.dart'; // Sesuaikan lokasi file login kamu
 
-// 🚨 1. Variabel Global pengontrol Tema
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() {
@@ -13,23 +12,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🚨 2. Bungkus dengan ValueListenableBuilder agar aplikasi bereaksi saat sakelar ditekan
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (_, ThemeMode currentMode, __) {
         return MaterialApp(
           title: 'Kinara Pharma',
           debugShowCheckedModeBanner: false,
-          themeMode: currentMode, // Mengikuti nilai dari profil
-          // --- TEMA TERANG (Sesuai kesepakatan sebelumnya) ---
+          themeMode: currentMode, // Mengikuti nilai dari sakelar profil
+          // --- TEMA TERANG ---
           theme: ThemeData(
             brightness: Brightness.light,
             colorScheme: ColorScheme.fromSeed(
               brightness: Brightness.light,
               seedColor: const Color(0xFF4CAF50),
-              primary: const Color(0xFF4CAF50),
-              secondary: const Color(0xFF8BC34A),
+              primary: const Color(0xFF4CAF50), // Hijau biasa
+              secondary: const Color(0xFF8BC34A), // Lime green
               surface: Colors.white,
+              surfaceContainerHighest: Colors.grey.shade100,
             ),
             scaffoldBackgroundColor: const Color(0xFFF9F9F9),
             appBarTheme: const AppBarTheme(
@@ -37,6 +36,11 @@ class MyApp extends StatelessWidget {
               foregroundColor: Color(0xFF4CAF50),
               elevation: 0,
               centerTitle: true,
+            ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Colors.white,
+              selectedItemColor: Color(0xFF4CAF50),
+              unselectedItemColor: Colors.grey,
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
@@ -50,36 +54,39 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
 
-          // --- TEMA GELAP (Elegan dan tidak bikin sakit mata) ---
+          // --- TEMA GELAP ---
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             colorScheme: ColorScheme.fromSeed(
               brightness: Brightness.dark,
               seedColor: const Color(0xFF4CAF50),
-              primary: const Color(
-                0xFF8BC34A,
-              ), 
+              primary: const Color(0xFF8BC34A), // Lime green untuk aksen gelap
               secondary: const Color(0xFF4CAF50),
               surface: const Color(
                 0xFF1E1E1E,
-              ), // Latar Card abu-abu sangat gelap
+              ), // Warna kotak/card abu-abu gelap
+              surfaceContainerHighest: const Color(
+                0xFF2C2C2C,
+              ), // Warna kotak input/pencarian
             ),
             scaffoldBackgroundColor: const Color(
               0xFF121212,
-            ), // Latar utama hitam murni
+            ), // Latar paling belakang (Hitam murni)
             appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF1E1E1E),
+              backgroundColor: Color(0xFF121212),
               foregroundColor: Color(0xFF8BC34A),
               elevation: 0,
               centerTitle: true,
             ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Color(0xFF1E1E1E),
+              selectedItemColor: Color(0xFF8BC34A),
+              unselectedItemColor: Colors.grey,
+            ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(
-                  0xFF8BC34A,
-                ), // Button lime di mode gelap
-                foregroundColor:
-                    Colors.black, // Teks hitam di atas button terang
+                backgroundColor: const Color(0xFF8BC34A),
+                foregroundColor: Colors.black, // Teks hitam agar terbaca jelas
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

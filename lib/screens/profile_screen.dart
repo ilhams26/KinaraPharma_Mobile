@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              color: Colors.white,
+              color: colorScheme.surface,
               child: Column(
                 children: [
                   CircleAvatar(
@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // Menu-menu Profil
             Container(
-              color: Colors.white,
+              color: colorScheme.surface,
               child: Column(
                 children: [
                   ListTile(
