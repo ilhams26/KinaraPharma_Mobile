@@ -9,7 +9,6 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // Dummy data sementara sebelum disambung ke API Laravel
   List<Map<String, dynamic>> cartItems = [
     {"id": 1, "nama": "Panadol Extra 500mg", "harga": 12500, "qty": 2},
     {"id": 2, "nama": "Vitamin C IPI", "harga": 8000, "qty": 1},
@@ -18,14 +17,26 @@ class _CartScreenState extends State<CartScreen> {
   int get totalHarga {
     int total = 0;
     for (var item in cartItems) {
-      total += (item['harga'] as int) * (item['qty'] as int);
+      int hrg = double.tryParse(item['harga'].toString())?.toInt() ?? 0;
+      int qty = int.tryParse(item['qty'].toString()) ?? 1;
+      total += hrg * qty;
     }
     return total;
+  }
+
+  // 🚨 FUNGSI FORMAT RUPIAH
+  String formatRupiah(dynamic price) {
+    int value = double.tryParse(price.toString())?.toInt() ?? 0;
+    return value.toString().replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (match) => '.',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +69,8 @@ class _CartScreenState extends State<CartScreen> {
               itemBuilder: (context, index) {
                 final item = cartItems[index];
                 return Card(
-                  color: Colors.white,
+                  // 🚨 PERBAIKAN: Jika Dark Mode, warna card jadi Hijau Gelap (Tinted Green)
+                  color: isDark ? const Color(0xFF1B3B22) : Colors.white,
                   elevation: 2,
                   margin: const EdgeInsets.only(bottom: 15),
                   shape: RoundedRectangleBorder(
@@ -76,7 +88,10 @@ class _CartScreenState extends State<CartScreen> {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceVariant,
+                            // Warna kotak icon menyesuaikan
+                            color: isDark
+                                ? const Color(0xFF2C5535)
+                                : colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -97,8 +112,9 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               const SizedBox(height: 5),
+                              // 🚨 FORMAT HARGA
                               Text(
-                                "Rp ${item['harga']}",
+                                "Rp ${formatRupiah(item['harga'])}",
                                 style: TextStyle(
                                   color: colorScheme.primary,
                                   fontWeight: FontWeight.bold,
@@ -107,7 +123,6 @@ class _CartScreenState extends State<CartScreen> {
                             ],
                           ),
                         ),
-                        // Kontrol Qty
                         Row(
                           children: [
                             IconButton(
@@ -148,11 +163,10 @@ class _CartScreenState extends State<CartScreen> {
               },
             ),
 
-      // Bagian Bawah (Total & Checkout)
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -173,8 +187,9 @@ class _CartScreenState extends State<CartScreen> {
                     "Total Pembayaran",
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
+                  // 🚨 FORMAT TOTAL HARGA
                   Text(
-                    "Rp $totalHarga",
+                    "Rp ${formatRupiah(totalHarga)}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -190,7 +205,6 @@ class _CartScreenState extends State<CartScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Memproses pesanan...")),
                         );
-
                         bool sukses = await ApiService.checkout(
                           cartItems,
                           "midtrans",
