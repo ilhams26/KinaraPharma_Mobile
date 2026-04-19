@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'cart_screen.dart';
-import 'upload_resep_screen.dart';
+import 'obat_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // FORMAT RUPIAH
   String formatRupiah(dynamic price) {
     int value = double.tryParse(price.toString())?.toInt() ?? 0;
     return value.toString().replaceAllMapped(
@@ -108,7 +107,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 25),
 
-                    // 🚨 PERBAIKAN: BANNER UPLOAD RESEP DIKEMBALIKAN
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -139,32 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 const Text(
-                                  "Upload resepmu di sini, biar apoteker kami yang siapkan.",
+                                  "Pilih obat yang ingin anda beli, lalu upload resep Anda.",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const UploadResepScreen(),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF4CAF50),
-                                  ),
-                                  child: const Text(
-                                    "Upload Resep",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
                                   ),
                                 ),
                               ],
@@ -181,7 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 25),
 
-                    // 🚨 PERBAIKAN: KATEGORI OBAT DIKEMBALIKAN
                     const Text(
                       "Kategori",
                       style: TextStyle(
@@ -208,13 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             isDark,
                           ),
                           _buildCategoryChip(
-                            "Vitamin",
-                            false,
-                            colorScheme,
-                            isDark,
-                          ),
-                          _buildCategoryChip(
-                            "Herbal",
+                            "Obat Keras",
                             false,
                             colorScheme,
                             isDark,
@@ -233,7 +202,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 15),
 
-                    // Grid Obat dari API
                     GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
@@ -247,69 +215,92 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                       itemBuilder: (context, index) {
                         final obat = medicines[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(0xFF1E1E1E)
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: colorScheme.secondary,
-                              width: 1.5,
+                        // 🚨 BUNGKUS DENGAN GESTURE DETECTOR UNTUK BISA DI KLIK
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ObatDetailScreen(obat: obat),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E1E1E)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: colorScheme.secondary,
+                                width: 1.5,
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  width: double.infinity,
-                                  color: isDark
-                                      ? const Color(0xFF2C2C2C)
-                                      : Colors.grey.shade100,
-                                  child: const Icon(
-                                    Icons.medication_liquid,
-                                    size: 50,
-                                    color: Colors.grey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    width: double.infinity,
+                                    color: isDark
+                                        ? const Color(0xFF2C2C2C)
+                                        : Colors.grey.shade100,
+                                    child: const Icon(
+                                      Icons.medication_liquid,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // 🚨 PERBAIKAN: Membaca kolom 'nama' dari database
-                                    Text(
-                                      obat['nama'] ??
-                                          obat['nama_obat'] ??
-                                          "Nama Tidak Ditemukan",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        obat['nama'] ??
+                                            obat['nama_obat'] ??
+                                            "Nama Tidak Ditemukan",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      "Rp ${formatRupiah(obat['harga'])}",
-                                      style: TextStyle(
-                                        color: colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Rp ${formatRupiah(obat['harga'])}",
+                                        style: TextStyle(
+                                          color: colorScheme.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed: () {},
-                                        child: const Text("Tambah"),
+                                      const SizedBox(height: 8),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            // TODO: Tambah keranjang biasa tanpa resep
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  "Ditambahkan ke keranjang",
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text("Tambah"),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -321,7 +312,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🚨 FUNGSI WIDGET KATEGORI DIKEMBALIKAN
   Widget _buildCategoryChip(
     String title,
     bool isSelected,

@@ -4,7 +4,15 @@ import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 
 class UploadResepScreen extends StatefulWidget {
-  const UploadResepScreen({super.key});
+  // 🚨 Menerima ID dan Nama Obat
+  final String obatId;
+  final String namaObat;
+
+  const UploadResepScreen({
+    super.key,
+    required this.obatId,
+    required this.namaObat,
+  });
 
   @override
   State<UploadResepScreen> createState() => _UploadResepScreenState();
@@ -15,43 +23,44 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
   final _picker = ImagePicker();
   bool _isUploading = false;
 
-  // Fungsi mengambil gambar
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(
       source: source,
       imageQuality: 80,
     );
     if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+      setState(() => _image = File(pickedFile.path));
     }
   }
 
-  // Fungsi kirim ke API
   Future<void> _handleUpload() async {
     if (_image == null) return;
-
     setState(() => _isUploading = true);
 
-    bool sukses = await ApiService.uploadPrescription(_image!.path);
+    // 🚨 Kirim gambar sekaligus ID Obatnya
+    bool sukses = await ApiService.uploadPrescription(
+      _image!.path,
+      widget.obatId,
+    );
 
     setState(() => _isUploading = false);
 
     if (sukses) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            "Resep berhasil dikirim! Mohon tunggu validasi apoteker.",
-          ),
+          content: Text("Resep berhasil dikirim! Menunggu validasi."),
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pop(context);
+      // Tutup halaman Upload, dan tutup juga halaman Detail Obat (kembali ke Beranda/Keranjang)
+      int count = 0;
+      Navigator.popUntil(context, (route) {
+        return count++ == 2;
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Gagal mengirim resep. Cek koneksi atau server."),
+          content: Text("Gagal mengirim resep."),
           backgroundColor: Colors.red,
         ),
       );
@@ -66,7 +75,7 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Upload Resep Dokter",
+          "Upload Resep",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -75,18 +84,22 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Punya resep dari dokter?",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // 🚨 Tampilkan nama obat yang akan ditebus
+            Text(
+              "Resep untuk: ${widget.namaObat}",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
-              "Foto resep asli Anda, agar apoteker kami dapat memprosesnya.",
+              "Foto resep asli Anda agar apoteker kami dapat memproses obat ini.",
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 25),
 
-            // AREA PREVIEW GAMBAR
             Container(
               width: double.infinity,
               height: 300,
@@ -109,7 +122,7 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
                         ),
                         const SizedBox(height: 10),
                         const Text(
-                          "Belum ada foto terpilih",
+                          "Belum ada foto",
                           style: TextStyle(color: Colors.grey),
                         ),
                       ],
@@ -121,7 +134,6 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
             ),
             const SizedBox(height: 20),
 
-            // TOMBOL PILIH FOTO
             Row(
               children: [
                 Expanded(
@@ -129,10 +141,6 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
                     onPressed: () => _pickImage(ImageSource.camera),
                     icon: const Icon(Icons.camera_alt),
                     label: const Text("Kamera"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colorScheme.primary,
-                      side: BorderSide(color: colorScheme.primary),
-                    ),
                   ),
                 ),
                 const SizedBox(width: 15),
@@ -141,17 +149,12 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
                     onPressed: () => _pickImage(ImageSource.gallery),
                     icon: const Icon(Icons.photo_library),
                     label: const Text("Galeri"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colorScheme.primary,
-                      side: BorderSide(color: colorScheme.primary),
-                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 40),
 
-            // TOMBOL SUBMIT
             SizedBox(
               width: double.infinity,
               height: 50,

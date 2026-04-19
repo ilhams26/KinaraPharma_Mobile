@@ -127,7 +127,7 @@ class ApiService {
   }
 
   // 6. Upload Foto Resep
-  static Future<bool> uploadPrescription(String filePath) async {
+  static Future<bool> uploadPrescription(String filePath, String obatId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -140,6 +140,8 @@ class ApiService {
 
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
+
+      request.fields['obat_id'] = obatId;
 
       request.files.add(await http.MultipartFile.fromPath('image', filePath));
 
