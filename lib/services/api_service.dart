@@ -125,4 +125,35 @@ class ApiService {
       return null;
     }
   }
+
+  // 6. Upload Foto Resep
+  static Future<bool> uploadPrescription(String filePath) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      if (token == null) return false;
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse("$baseUrl/prescriptions/upload"),
+      );
+
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+
+      request.files.add(await http.MultipartFile.fromPath('image', filePath));
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print("=== DEBUG UPLOAD RESEP ===");
+      print("Status: ${response.statusCode}");
+      print("Body: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("Error Upload: $e");
+      return false;
+    }
+  }
 }
