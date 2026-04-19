@@ -123,12 +123,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   enabled: _currentState == LoginState.inputPhone,
                   keyboardType: TextInputType.phone,
                   style: TextStyle(color: colorScheme.onSurface),
-                  // Contoh untuk TextField Nomor HP & OTP
                   decoration: InputDecoration(
-                    labelText: 'Nomor HP', // Atau 'Masukkan OTP'
+                    labelText: 'Nomor HP',
                     filled: true,
-                    fillColor: Colors.white, // Background putih bersih
-                    // Border saat diam (Lime Green)
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
