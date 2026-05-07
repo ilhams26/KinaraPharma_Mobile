@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/order_service.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -9,17 +10,17 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // Dummy data sekarang punya atribut "selected"
+  // Dummy data obat. Pastikan 'id' ini benar-benar ada di tabel 'obat' database Laravel-mu!
   List<Map<String, dynamic>> cartItems = [
     {
-      "id": 1,
+      "id": 1, // ID obat di database
       "nama": "Panadol Extra 500mg",
       "harga": 12500,
       "qty": 2,
       "selected": true,
     },
     {
-      "id": 2,
+      "id": 2, // ID obat di database
       "nama": "Vitamin C IPI",
       "harga": 8000,
       "qty": 1,
@@ -52,7 +53,6 @@ class _CartScreenState extends State<CartScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Ngecek apakah ada minimal 1 barang yang dicentang untuk menyalakan tombol Checkout
     bool hasSelectedItems = cartItems.any((item) => item['selected'] == true);
 
     return Scaffold(
@@ -87,7 +87,6 @@ class _CartScreenState extends State<CartScreen> {
                 final item = cartItems[index];
                 bool isSelected = item['selected'] ?? false;
 
-                // Membungkus Card agar bisa di-klik di area mana saja untuk menceklis
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -96,13 +95,11 @@ class _CartScreenState extends State<CartScreen> {
                   },
                   child: Card(
                     color: isDark ? const Color(0xFF1B3B22) : Colors.white,
-                    // Efek melayang lebih tinggi jika dipilih
                     elevation: isSelected ? 4 : 1,
                     margin: const EdgeInsets.only(bottom: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                        // 🚨 UI BARU: BORDER HIJAU MENYALA JIKA DIPILIH
                         color: isSelected
                             ? colorScheme.primary
                             : (isDark
@@ -184,7 +181,6 @@ class _CartScreenState extends State<CartScreen> {
                                 },
                               ),
                               const SizedBox(width: 8),
-                              // 🚨 UI BARU: ICON CENTANG DI KANAN BAWAH PLUS
                               Icon(
                                 isSelected
                                     ? Icons.check_circle
@@ -203,7 +199,6 @@ class _CartScreenState extends State<CartScreen> {
                 );
               },
             ),
-
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -242,38 +237,61 @@ class _CartScreenState extends State<CartScreen> {
                 onPressed: !hasSelectedItems
                     ? null
                     : () async {
+                        // 1. Ambil Token (Sesuaikan 'token' dengan key yang kamu simpan saat login)
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        String? tokenLogin = prefs.getString(
+                          'token',
+                        ); // << CEK NAMA KEY INI
+
+                        // JIKA BELUM BIKIN LOGIN, UNCOMMENT BARIS DI BAWAH INI UNTUK TESTING HARDCODE:
+                        // tokenLogin = "ISI_DENGAN_TOKEN_DARI_POSTMAN";
+
+                        if (tokenLogin == null || tokenLogin.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Error: Anda belum login! (Token kosong)",
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Memproses pesanan...")),
+                          const SnackBar(
+                            content: Text("Menyiapkan pembayaran Midtrans..."),
+                          ),
                         );
 
+                        // 2. Format Data untuk Laravel
                         List<Map<String, dynamic>> itemsToCheckout = cartItems
                             .where((i) => i['selected'] == true)
+                            .map(
+                              (item) => {
+                                'obat_id': item['id'],
+                                'qty': item['qty'],
+                              },
+                            )
                             .toList();
 
-                        bool sukses = await ApiService.checkout(
+                        // 3. Panggil API
+                        bool isSuccess = await OrderService.prosesCheckoutReal(
+                          context,
+                          tokenLogin,
                           itemsToCheckout,
-                          "midtrans",
                         );
 
-                        if (sukses) {
+                        // 4. Jika berhasil, bersihkan item yang dicentang
+                        if (isSuccess) {
                           setState(() {
-                            // 🚨 LOGIKA BARU: Hapus HANYA item yang berhasil di-checkout
                             cartItems.removeWhere((i) => i['selected'] == true);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                "Checkout Berhasil!",
-                                style: TextStyle(color: Colors.white),
-                              ),
+                              content: Text("Pesanan berhasil dibuat!"),
                               backgroundColor: Colors.green,
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Gagal Checkout. Cek Console."),
-                              backgroundColor: Colors.red,
                             ),
                           );
                         }

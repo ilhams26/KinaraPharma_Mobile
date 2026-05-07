@@ -23,7 +23,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        // 🚨 PERBAIKAN: Antisipasi jika Laravel tidak membungkus data dengan ['user']
         return data['user'] ?? data;
       }
       return null;
@@ -32,7 +31,6 @@ class ApiService {
       return null;
     }
   }
-
   // 2. Ambil Daftar Obat
   static Future<List<dynamic>> getMedicines() async {
     try {
