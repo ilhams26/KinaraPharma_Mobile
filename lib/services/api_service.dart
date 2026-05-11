@@ -31,20 +31,27 @@ class ApiService {
       return null;
     }
   }
+
   // 2. Ambil Daftar Obat
-  static Future<List<dynamic>> getMedicines() async {
+  static Future<List<dynamic>> getMedicines({
+    String? search,
+    int? kategoriId,
+  }) async {
     try {
-      final response = await http.get(
-        Uri.parse("$baseUrl/obats"),
-        headers: {'Accept': 'application/json'},
-      );
+      String url = '$baseUrl/obats?';
+      if (search != null) url += 'search=$search&';
+      if (kategoriId != null) url += 'kategori_id=$kategoriId';
+
+      final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        return json.decode(response.body)['data'] ?? json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data['data'];
+      } else {
+        return [];
       }
-      return [];
     } catch (e) {
-      print("Error Medicines: $e");
+      print("Error Fetch Medicines: $e");
       return [];
     }
   }

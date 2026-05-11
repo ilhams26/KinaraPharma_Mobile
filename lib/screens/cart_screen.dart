@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/order_service.dart';
+import '../services/cart_service.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -10,23 +11,27 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // Dummy data obat. Pastikan 'id' ini benar-benar ada di tabel 'obat' database Laravel-mu!
-  List<Map<String, dynamic>> cartItems = [
-    {
-      "id": 1, // ID obat di database
-      "nama": "Panadol Extra 500mg",
-      "harga": 12500,
-      "qty": 2,
-      "selected": true,
-    },
-    {
-      "id": 2, // ID obat di database
-      "nama": "Vitamin C IPI",
-      "harga": 8000,
-      "qty": 1,
-      "selected": false,
-    },
-  ];
+  List<Map<String, dynamic>> cartItems = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCart();
+  }
+
+  Future<void> _loadCart() async {
+    final items = await CartService.getCart();
+    setState(() {
+      cartItems = items;
+      isLoading = false;
+    });
+  }
+
+  void _updateCartData() {
+    CartService.saveCart(cartItems);
+    setState(() {}); 
+  }
 
   int get totalHarga {
     int total = 0;

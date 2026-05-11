@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'cart_screen.dart';
 import 'obat_detail_screen.dart';
+import '../services/cart_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,14 +15,23 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> medicines = [];
   bool isLoading = true;
 
+  // Variabel untuk Search dan Kategori
+  String? currentSearch;
+  int? currentKategoriId;
+
   @override
   void initState() {
     super.initState();
     _fetchData();
   }
 
+  // Fungsi Fetch yang sekarang mendukung filter
   Future<void> _fetchData() async {
-    final data = await ApiService.getMedicines();
+    setState(() => isLoading = true);
+    final data = await ApiService.getMedicines(
+      search: currentSearch,
+      kategoriId: currentKategoriId,
+    );
     setState(() {
       medicines = data;
       isLoading = false;
@@ -43,11 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset(
-          'assets/images/logo_kinara.png',
-          height: 40,
-          fit: BoxFit.contain,
-        ),
+        title: Image.asset('assets/images/logo_kinara.png', height: 40),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
@@ -56,153 +62,77 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (context) => const CartScreen()),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _fetchData,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        onRefresh: _fetchData,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Halo, Ilham!",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+
+              // SEARCH BAR FUNGSIONAL
+              TextField(
+                onChanged: (value) {
+                  currentSearch = value;
+                  _fetchData(); // Langsung filter saat ngetik
+                },
+                decoration: InputDecoration(
+                  hintText: 'Cari obat...',
+                  prefixIcon: Icon(Icons.search, color: colorScheme.primary),
+                  filled: true,
+                  fillColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+
+              // CATEGORY CHIP FUNGSIONAL
+              const Text(
+                "Kategori",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
                   children: [
-                    const Text(
-                      "Halo, Ilham!",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    _buildCategoryChip("Semua", null, colorScheme, isDark),
+                    _buildCategoryChip("Obat Bebas", 1, colorScheme, isDark),
+                    _buildCategoryChip("Obat Keras", 2, colorScheme, isDark),
+                    _buildCategoryChip("Vitamin", 2, colorScheme, isDark),
+                    _buildCategoryChip(
+                      "Alat Kesehatan",
+                      2,
+                      colorScheme,
+                      isDark,
                     ),
-                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
 
-                    // Search Bar
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Cari Paracetamol, Vitamin C...',
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: colorScheme.primary,
-                        ),
-                        filled: true,
-                        fillColor: isDark
-                            ? const Color(0xFF2C2C2C)
-                            : Colors.white,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: colorScheme.secondary),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: colorScheme.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
+              const Text(
+                "Katalog Obat",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 15),
 
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4CAF50),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF4CAF50).withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Punya Resep Dokter?",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  "Pilih obat yang ingin anda beli, lalu upload resep Anda.",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Icon(
-                            Icons.document_scanner,
-                            size: 70,
-                            color: Colors.white70,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-
-                    const Text(
-                      "Kategori",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 40,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          _buildCategoryChip(
-                            "Semua",
-                            true,
-                            colorScheme,
-                            isDark,
-                          ),
-                          _buildCategoryChip(
-                            "Obat Bebas",
-                            false,
-                            colorScheme,
-                            isDark,
-                          ),
-                          _buildCategoryChip(
-                            "Obat Keras",
-                            false,
-                            colorScheme,
-                            isDark,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-
-                    const Text(
-                      "Katalog Obat",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-
-                    GridView.builder(
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : medicines.isEmpty
+                  ? const Center(child: Text("Obat tidak ditemukan"))
+                  : GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: medicines.length,
@@ -215,41 +145,46 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                       itemBuilder: (context, index) {
                         final obat = medicines[index];
-                        // 🚨 BUNGKUS DENGAN GESTURE DETECTOR UNTUK BISA DI KLIK
+                        // Alamat Gambar Real dari Laravel Storage
+                        final imageUrl =
+                            'https://deon-experimental-dalton.ngrok-free.dev/storage/${obat['foto']}';
+
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ObatDetailScreen(obat: obat),
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ObatDetailScreen(obat: obat),
+                            ),
+                          ),
                           child: Container(
                             decoration: BoxDecoration(
                               color: isDark
                                   ? const Color(0xFF1E1E1E)
                                   : Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: colorScheme.secondary,
-                                width: 1.5,
-                              ),
+                              border: Border.all(color: colorScheme.secondary),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // TAMPILAN GAMBAR ASLI
                                 Expanded(
-                                  child: Container(
-                                    width: double.infinity,
-                                    color: isDark
-                                        ? const Color(0xFF2C2C2C)
-                                        : Colors.grey.shade100,
-                                    child: const Icon(
-                                      Icons.medication_liquid,
-                                      size: 50,
-                                      color: Colors.grey,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Image.network(
+                                      imageUrl,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(
+                                                Icons.medication,
+                                                size: 50,
+                                                color: Colors.grey,
+                                              ),
                                     ),
                                   ),
                                 ),
@@ -260,9 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        obat['nama'] ??
-                                            obat['nama_obat'] ??
-                                            "Nama Tidak Ditemukan",
+                                        obat['nama'] ?? "Tanpa Nama",
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -281,17 +214,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(
                                         width: double.infinity,
                                         child: ElevatedButton(
-                                          onPressed: () {
-                                            // TODO: Tambah keranjang biasa tanpa resep
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  "Ditambahkan ke keranjang",
+                                          onPressed: () async {
+                                            await CartService.addToCart(obat);
+
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    "${obat['nama']} berhasil ditambah ke keranjang!",
+                                                  ),
+                                                  backgroundColor: Colors.green,
+                                                  duration: const Duration(
+                                                    seconds: 1,
+                                                  ),
                                                 ),
-                                              ),
-                                            );
+                                              );
+                                            }
                                           },
                                           child: const Text("Tambah"),
                                         ),
@@ -305,44 +245,35 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
-                  ],
-                ),
-              ),
-            ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildCategoryChip(
     String title,
-    bool isSelected,
+    int? kategoriId,
     ColorScheme colorScheme,
     bool isDark,
   ) {
+    bool isSelected = currentKategoriId == kategoriId;
     return Container(
       margin: const EdgeInsets.only(right: 10),
       child: FilterChip(
         label: Text(
           title,
-          style: TextStyle(
-            color: isSelected
-                ? (isDark ? Colors.black : Colors.white)
-                : (isDark ? Colors.white70 : Colors.black87),
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+          style: TextStyle(color: isSelected ? Colors.white : Colors.black87),
         ),
         selected: isSelected,
-        onSelected: (bool value) {},
-        backgroundColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+        onSelected: (bool value) {
+          setState(() {
+            currentKategoriId = kategoriId;
+            _fetchData();
+          });
+        },
         selectedColor: colorScheme.primary,
-        checkmarkColor: isDark ? Colors.black : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isSelected
-                ? colorScheme.primary
-                : (isDark ? Colors.grey.shade800 : Colors.grey.shade300),
-          ),
-        ),
       ),
     );
   }
