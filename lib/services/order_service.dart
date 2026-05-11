@@ -9,7 +9,7 @@ class OrderService {
     String tokenLogin,
     List<Map<String, dynamic>> keranjang,
   ) async {
-    // GANTI SESUAI URL NGROK KAMU
+    // GANTI SESUAI URL NGROK
     final String apiUrl =
         'https://deon-experimental-dalton.ngrok-free.dev/api/midtrans/checkout';
 
@@ -29,7 +29,6 @@ class OrderService {
         final String snapToken = data['snap_token'];
         final String orderCode = data['order_code'];
 
-        // Pindah ke layar Midtrans, lalu tunggu pembeli menutup halamannya
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
@@ -40,13 +39,11 @@ class OrderService {
           ),
         );
 
-        // Jika pembeli selesai dan halaman tertutup (result = true)
         if (result == true) {
           return true;
         }
         return false;
       } else {
-        // Jika Laravel membalas error (misal stok habis)
         final errorData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -57,7 +54,6 @@ class OrderService {
         return false;
       }
     } catch (e) {
-      // Jika internet mati atau Ngrok salah
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Kesalahan jaringan: Cek koneksi atau URL Ngrok Anda.'),

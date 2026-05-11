@@ -30,7 +30,7 @@ class _CartScreenState extends State<CartScreen> {
 
   void _updateCartData() {
     CartService.saveCart(cartItems);
-    setState(() {}); 
+    setState(() {});
   }
 
   int get totalHarga {
@@ -94,9 +94,8 @@ class _CartScreenState extends State<CartScreen> {
 
                 return GestureDetector(
                   onTap: () {
-                    setState(() {
-                      item['selected'] = !isSelected;
-                    });
+                    item['selected'] = !isSelected;
+                    _updateCartData();
                   },
                   child: Card(
                     color: isDark ? const Color(0xFF1B3B22) : Colors.white,
@@ -163,10 +162,11 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                                 onPressed: () {
                                   if (item['qty'] > 1) {
-                                    setState(() => item['qty']--);
+                                    item['qty']--;
                                   } else {
-                                    setState(() => cartItems.removeAt(index));
+                                    cartItems.removeAt(index);
                                   }
+                                  _updateCartData();
                                 },
                               ),
                               Text(
@@ -182,7 +182,8 @@ class _CartScreenState extends State<CartScreen> {
                                   color: colorScheme.primary,
                                 ),
                                 onPressed: () {
-                                  setState(() => item['qty']++);
+                                  item['qty']++;
+                                  _updateCartData();
                                 },
                               ),
                               const SizedBox(width: 8),

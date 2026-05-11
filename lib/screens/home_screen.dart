@@ -96,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 25),
 
-              // CATEGORY CHIP FUNGSIONAL
               const Text(
                 "Kategori",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -110,13 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildCategoryChip("Semua", null, colorScheme, isDark),
                     _buildCategoryChip("Obat Bebas", 1, colorScheme, isDark),
                     _buildCategoryChip("Obat Keras", 2, colorScheme, isDark),
-                    _buildCategoryChip("Vitamin", 2, colorScheme, isDark),
-                    _buildCategoryChip(
-                      "Alat Kesehatan",
-                      2,
-                      colorScheme,
-                      isDark,
-                    ),
+                    _buildCategoryChip("Vitamin", 3, colorScheme, isDark),
+                    _buildCategoryChip("Alat Kesehatan", 4, colorScheme, isDark),
                   ],
                 ),
               ),
@@ -145,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                       itemBuilder: (context, index) {
                         final obat = medicines[index];
-                        // Alamat Gambar Real dari Laravel Storage
                         final imageUrl =
                             'https://deon-experimental-dalton.ngrok-free.dev/storage/${obat['foto']}';
 
@@ -168,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // TAMPILAN GAMBAR ASLI
                                 Expanded(
                                   child: ClipRRect(
                                     borderRadius: const BorderRadius.vertical(

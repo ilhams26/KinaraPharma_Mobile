@@ -18,8 +18,7 @@ class ObatDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // 🚨 LOGIKA BARU YANG SUPER SIMPEL (Sesuai dengan kolom 'jenis' di database)
+    
     bool isObatKeras = obat['jenis'] == 'keras';
 
     String namaObat = obat['nama'] ?? "Obat";

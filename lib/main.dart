@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Kinara Pharma',
           debugShowCheckedModeBanner: false,
-          themeMode: currentMode, // Mengikuti nilai dari sakelar profil
-          // --- TEMA TERANG ---
+          themeMode: currentMode, 
+          //TEMA TERANG 
           theme: ThemeData(
             brightness: Brightness.light,
             colorScheme: ColorScheme.fromSeed(
@@ -54,24 +54,23 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
 
-          // --- TEMA GELAP ---
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             colorScheme: ColorScheme.fromSeed(
               brightness: Brightness.dark,
               seedColor: const Color(0xFF4CAF50),
-              primary: const Color(0xFF8BC34A), // Lime green untuk aksen gelap
+              primary: const Color(0xFF8BC34A), 
               secondary: const Color(0xFF4CAF50),
               surface: const Color(
                 0xFF1E1E1E,
-              ), // Warna kotak/card abu-abu gelap
+              ), 
               surfaceContainerHighest: const Color(
                 0xFF2C2C2C,
-              ), // Warna kotak input/pencarian
+              ), 
             ),
             scaffoldBackgroundColor: const Color(
               0xFF121212,
-            ), // Latar paling belakang (Hitam murni)
+            ), 
             appBarTheme: const AppBarTheme(
               backgroundColor: Color(0xFF121212),
               foregroundColor: Color(0xFF8BC34A),
@@ -86,7 +85,7 @@ class MyApp extends StatelessWidget {
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF8BC34A),
-                foregroundColor: Colors.black, // Teks hitam agar terbaca jelas
+                foregroundColor: Colors.black, 
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

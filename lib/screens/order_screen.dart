@@ -27,7 +27,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? tokenLogin = prefs.getString('token'); // Sesuaikan key token-mu
+      String? tokenLogin = prefs.getString('token'); 
 
       if (tokenLogin == null) {
         setState(() => _isLoading = false);
@@ -47,7 +47,6 @@ class _OrderScreenState extends State<OrderScreen> {
         final List<dynamic> allOrders = data['data'];
 
         setState(() {
-          // Pisahkan pesanan aktif dan riwayat (selesai/batal)
           _activeOrders = allOrders
               .where(
                 (order) =>
@@ -231,7 +230,6 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                     ],
                   ),
-                  // Indikator khusus jika belum dibayar via Midtrans
                   if (order['payment_status'] == 'unpaid' &&
                       order['metode_pembayaran'] == 'midtrans') ...[
                     const SizedBox(height: 10),

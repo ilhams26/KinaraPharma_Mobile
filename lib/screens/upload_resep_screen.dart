@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 
 class UploadResepScreen extends StatefulWidget {
-  // 🚨 Menerima ID dan Nama Obat
   final String obatId;
   final String namaObat;
 
@@ -37,7 +36,6 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
     if (_image == null) return;
     setState(() => _isUploading = true);
 
-    // 🚨 Kirim gambar sekaligus ID Obatnya
     bool sukses = await ApiService.uploadPrescription(
       _image!.path,
       widget.obatId,
@@ -52,7 +50,7 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      // Tutup halaman Upload, dan tutup juga halaman Detail Obat (kembali ke Beranda/Keranjang)
+
       int count = 0;
       Navigator.popUntil(context, (route) {
         return count++ == 2;
@@ -84,7 +82,6 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🚨 Tampilkan nama obat yang akan ditebus
             Text(
               "Resep untuk: ${widget.namaObat}",
               style: TextStyle(

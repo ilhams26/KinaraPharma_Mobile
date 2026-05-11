@@ -11,9 +11,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0; // Default menampilkan Beranda
+  int _selectedIndex = 0; 
 
-  // Daftar 3 halaman yang sudah kamu buat sebelumnya
   final List<Widget> _pages = [
     const HomeScreen(),
     const OrderScreen(),
@@ -32,7 +31,6 @@ class _MainScreenState extends State<MainScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // Body akan otomatis berganti mengikuti index tab yang ditekan
       body: _pages[_selectedIndex],
 
       // Navigasi Bawah
@@ -43,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
         unselectedItemColor: Colors.grey,
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         type: BottomNavigationBarType
-            .fixed, // Memastikan semua ikon tetap pada posisinya
+            .fixed, 
         elevation: 10,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),

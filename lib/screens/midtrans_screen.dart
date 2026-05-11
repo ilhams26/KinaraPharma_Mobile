@@ -37,7 +37,6 @@ class _MidtransPaymentScreenState extends State<MidtransPaymentScreen> {
             });
           },
           onNavigationRequest: (NavigationRequest request) {
-            // Jika Midtrans mencoba redirect balik ke web localhost/ngrok kita, tutup halamannya
             if (request.url.contains('example.com') ||
                 request.url.contains('ngrok')) {
               Navigator.pop(context, true);

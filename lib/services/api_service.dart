@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // Pastikan IP dan Port sesuai dengan emulator dan Laragon kamu
+  //Sesuaikan IP dan Port
   static const String baseUrl = "http://10.0.2.2:8000/api";
 
-  // 1. Ambil Data Profil User
+  //Profil
   static Future<Map<String, dynamic>?> getProfile() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,7 +32,7 @@ class ApiService {
     }
   }
 
-  // 2. Ambil Daftar Obat
+  // Daftar Obat
   static Future<List<dynamic>> getMedicines({
     String? search,
     int? kategoriId,
@@ -56,7 +56,7 @@ class ApiService {
     }
   }
 
-  // 3. Checkout Keranjang
+  //Checkout Keranjang
   static Future<bool> checkout(
     List<Map<String, dynamic>> cartItems,
     String paymentMethod,
@@ -96,7 +96,7 @@ class ApiService {
     }
   }
 
-  // 4. Request OTP
+  //Request OTP
   static Future<bool> requestOtp(String phone) async {
     try {
       final response = await http.post(
@@ -131,7 +131,7 @@ class ApiService {
     }
   }
 
-  // 6. Upload Foto Resep
+  //Upload Foto Resep
   static Future<bool> uploadPrescription(String filePath, String obatId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();

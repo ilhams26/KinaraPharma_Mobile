@@ -134,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    // Border saat diklik/diketik (Hijau Biasa lebih tebal)
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
