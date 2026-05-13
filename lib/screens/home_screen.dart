@@ -15,9 +15,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> medicines = [];
   bool isLoading = true;
 
-  // Variabel untuk Search dan Kategori
   String? currentSearch;
   int? currentKategoriId;
+
+  String namaUser = "Pengguna";
 
   @override
   void initState() {
@@ -25,14 +26,19 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchData();
   }
 
-  // Fungsi Fetch yang sekarang mendukung filter
   Future<void> _fetchData() async {
     setState(() => isLoading = true);
+
+    final profileData = await ApiService.getProfile();
+
     final data = await ApiService.getMedicines(
       search: currentSearch,
       kategoriId: currentKategoriId,
     );
     setState(() {
+      if (profileData != null && profileData['username'] != null) {
+        namaUser = profileData['username'];
+      }
       medicines = data;
       isLoading = false;
     });
@@ -71,17 +77,19 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Halo, Ilham!",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              Text(
+                "Halo, $namaUser!",
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 20),
 
-              // SEARCH BAR FUNGSIONAL
               TextField(
                 onChanged: (value) {
                   currentSearch = value;
-                  _fetchData(); // Langsung filter saat ngetik
+                  _fetchData();
                 },
                 decoration: InputDecoration(
                   hintText: 'Cari obat...',
@@ -110,7 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildCategoryChip("Obat Bebas", 1, colorScheme, isDark),
                     _buildCategoryChip("Obat Keras", 2, colorScheme, isDark),
                     _buildCategoryChip("Vitamin", 3, colorScheme, isDark),
-                    _buildCategoryChip("Alat Kesehatan", 4, colorScheme, isDark),
+                    _buildCategoryChip(
+                      "Alat Kesehatan",
+                      4,
+                      colorScheme,
+                      isDark,
+                    ),
                   ],
                 ),
               ),

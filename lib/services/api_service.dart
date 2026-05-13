@@ -32,6 +32,42 @@ class ApiService {
     }
   }
 
+  // Update Profil
+  static Future<bool> updateProfile(
+    String nama,
+    String tglLahir,
+    String gender,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? tokenLogin = prefs.getString('token');
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/profile'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $tokenLogin',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        body: {
+          'username': nama,
+          'tanggal_lahir': tglLahir,
+          'jenis_kelamin': gender,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Gagal Update: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error Update Profile: $e");
+      return false;
+    }
+  }
+
   // Daftar Obat
   static Future<List<dynamic>> getMedicines({
     String? search,

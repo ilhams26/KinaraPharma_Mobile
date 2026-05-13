@@ -22,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
+    setState(() => isLoading = true);
     final data = await ApiService.getProfile();
     setState(() {
       userData = data;
@@ -33,6 +34,203 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (phone == null || phone.isEmpty) return "";
     if (phone.startsWith('0')) return phone.substring(1);
     return phone;
+  }
+
+  void _showEditProfileSheet() {
+    String namaAsli = userData?['username'] ?? '';
+    String tglLahirAsli = userData?['tanggal_lahir'] ?? '';
+    String? genderAsli = userData?['jenis_kelamin'];
+
+    if (tglLahirAsli.contains('T')) {
+      tglLahirAsli = tglLahirAsli.split('T')[0];
+    }
+
+    String? selectedGender;
+    if (genderAsli != null) {
+      genderAsli = genderAsli.trim().toUpperCase();
+      if (genderAsli == 'L' || genderAsli == 'P') {
+        selectedGender = genderAsli;
+      }
+    }
+
+    TextEditingController nameController = TextEditingController(
+      text: namaAsli,
+    );
+    TextEditingController dobController = TextEditingController(
+      text: tglLahirAsli,
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            final colorScheme = Theme.of(context).colorScheme;
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 24,
+                right: 24,
+                top: 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 50,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Edit Profil",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Input Nama
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nama Lengkap',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  //  Tanggal Lahir
+                  TextField(
+                    controller: dobController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Tanggal Lahir',
+                      prefixIcon: const Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onTap: () async {
+                      DateTime initialPickerDate = DateTime(2006, 1, 26);
+                      if (dobController.text.isNotEmpty) {
+                        try {
+                          initialPickerDate = DateTime.parse(
+                            dobController.text,
+                          );
+                        } catch (e) {}
+                      }
+
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: initialPickerDate,
+                        firstDate: DateTime(1950),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        setModalState(() {
+                          dobController.text =
+                              "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Jenis Kelamin
+                  DropdownButtonFormField<String>(
+                    value: selectedGender,
+                    decoration: InputDecoration(
+                      labelText: 'Jenis Kelamin',
+                      prefixIcon: const Icon(Icons.wc),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'L', child: Text("Laki-laki")),
+                      DropdownMenuItem(value: 'P', child: Text("Perempuan")),
+                    ],
+                    onChanged: (String? newValue) {
+                      setModalState(() {
+                        selectedGender = newValue;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 25),
+
+                  // Tombol Simpan
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        Navigator.pop(context); 
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Menyimpan perubahan...'),
+                          ),
+                        );
+
+                        bool sukses = await ApiService.updateProfile(
+                          nameController.text,
+                          dobController.text,
+                          selectedGender ?? '',
+                        );
+
+                        if (sukses) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Profil berhasil diperbarui!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          _loadProfile(); // Tarik data fresh dari API
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Gagal memperbarui profil'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text(
+                        "Simpan Perubahan",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _showAboutDialog() {
@@ -148,6 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         : colorScheme.surface,
                     child: Column(
                       children: [
+                        // 🚨 TOMBOL EDIT PROFIL SEKARANG BERFUNGSI
                         ListTile(
                           leading: Icon(
                             Icons.edit_outlined,
@@ -158,15 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Icons.arrow_forward_ios,
                             size: 16,
                           ),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Fitur Edit Profil sedang dikembangkan",
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: _showEditProfileSheet, // PANGGIL MODAL DI SINI
                         ),
                         const Divider(height: 1),
 
