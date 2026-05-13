@@ -23,11 +23,11 @@ class _OrderScreenState extends State<OrderScreen> {
 
   Future<void> _fetchOrders() async {
     const String apiUrl =
-        ' https://deon-experimental-dalton.ngrok-free.dev/api/orders';
+        'https://deon-experimental-dalton.ngrok-free.dev/api/orders';
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? tokenLogin = prefs.getString('token'); 
+      String? tokenLogin = prefs.getString('token');
 
       if (tokenLogin == null) {
         setState(() => _isLoading = false);

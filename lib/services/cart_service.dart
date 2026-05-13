@@ -20,24 +20,21 @@ class CartService {
       // Jika sudah ada, tambah QTY-nya saja
       cartItems[index]['qty'] += 1;
     } else {
-      // Jika belum ada, masukkan sebagai barang baru
       cartItems.add({
         'id': obat['id'],
         'nama': obat['nama'] ?? obat['nama_obat'],
         'harga': obat['harga'],
         'qty': 1,
-        'selected': true, // Otomatis tercentang untuk checkout
+        'selected': true,
       });
     }
 
-    // Simpan kembali ke penyimpanan HP
     List<String> updatedCartString = cartItems
         .map((e) => json.encode(e))
         .toList();
     await prefs.setStringList(_cartKey, updatedCartString);
   }
 
-  // 2. Ambil semua isi keranjang
   static Future<List<Map<String, dynamic>>> getCart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> cartStringList = prefs.getStringList(_cartKey) ?? [];
@@ -46,7 +43,6 @@ class CartService {
         .toList();
   }
 
-  // 3. Simpan perubahan (saat user mengubah QTY atau centang)
   static Future<void> saveCart(List<Map<String, dynamic>> cartItems) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> updatedCartString = cartItems
