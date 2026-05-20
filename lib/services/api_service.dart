@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  //Sesuaikan IP dan Port
-  static const String baseUrl = "http://10.0.2.2:8000/api";
+  // VPS = "http://kelompok9.my.id/api"
+  // Lokal = http://10.0.2.2:8000/api
+  static const String baseUrl = "http://kelompok9.my.id/api";
 
-  //Profil
   static Future<Map<String, dynamic>?> getProfile() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,7 +32,6 @@ class ApiService {
     }
   }
 
-  // Update Profil
   static Future<bool> updateProfile(
     String nama,
     String tglLahir,
@@ -47,7 +46,6 @@ class ApiService {
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $tokenLogin',
-          'ngrok-skip-browser-warning': 'true',
         },
         body: {
           'username': nama,
@@ -56,19 +54,13 @@ class ApiService {
         },
       );
 
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        print("Gagal Update: ${response.body}");
-        return false;
-      }
+      return response.statusCode == 200;
     } catch (e) {
       print("Error Update Profile: $e");
       return false;
     }
   }
 
-  // Daftar Obat
   static Future<List<dynamic>> getMedicines({
     String? search,
     int? kategoriId,
@@ -82,17 +74,15 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        return data['data'];
-      } else {
-        return [];
+        return data['data'] ?? [];
       }
+      return [];
     } catch (e) {
       print("Error Fetch Medicines: $e");
       return [];
     }
   }
 
-  //Checkout Keranjang
   static Future<bool> checkout(
     List<Map<String, dynamic>> cartItems,
     String paymentMethod,
@@ -132,27 +122,12 @@ class ApiService {
     }
   }
 
-  //Request OTP
-  static Future<bool> requestOtp(String phone) async {
-    try {
-      final response = await http.post(
-        Uri.parse("$baseUrl/request-otp"),
-        headers: {'Accept': 'application/json'},
-        body: {'no_hp': phone},
-      );
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // 5. Verify OTP
-  static Future<String?> verifyOtp(String phone, String otp) async {
+  static Future<String?> loginPembeli(String phone, String password) async {
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/login-pembeli"),
         headers: {'Accept': 'application/json'},
-        body: {'no_hp': phone, 'otp': otp},
+        body: {'no_hp': phone, 'password': password},
       );
 
       if (response.statusCode == 200) {
@@ -163,11 +138,45 @@ class ApiService {
       }
       return null;
     } catch (e) {
+      print("Error Login: $e");
       return null;
     }
   }
 
-  //Upload Foto Resep
+  static Future<bool> registerPembeli(
+    String name,
+    String phone,
+    String password,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/register-pembeli"),
+        headers: {'Accept': 'application/json'},
+        body: {'username': name, 'no_hp': phone, 'password': password},
+      );
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("Error Register: $e");
+      return false;
+    }
+  }
+
+  // Request OTP
+  static Future<bool> requestOtp(String phone) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/request-otp"),
+        headers: {'Accept': 'application/json'},
+        body: {'no_hp': phone},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error Request OTP: $e");
+      return false;
+    }
+  }
+
   static Future<bool> uploadPrescription(String filePath, String obatId) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -181,17 +190,11 @@ class ApiService {
 
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
-
       request.fields['obat_id'] = obatId;
-
       request.files.add(await http.MultipartFile.fromPath('image', filePath));
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-
-      print("=== DEBUG UPLOAD RESEP ===");
-      print("Status: ${response.statusCode}");
-      print("Body: ${response.body}");
 
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {

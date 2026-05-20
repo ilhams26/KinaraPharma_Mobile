@@ -1,54 +1,41 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
-import 'main_screen.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegister() async {
+    String name = _nameController.text.trim();
     String phone = _phoneController.text.trim();
     String password = _passwordController.text.trim();
 
-    if (phone.isEmpty || phone.length < 10) {
+    if (name.isEmpty) return _showError("Nama Lengkap tidak boleh kosong.");
+    if (phone.isEmpty || phone.length < 10)
       return _showError("Nomor HP tidak valid.");
-    }
-    if (password.isEmpty) {
-      return _showError("Password tidak boleh kosong.");
-    }
+    if (password.isEmpty || password.length < 6)
+      return _showError("Password minimal 6 karakter.");
 
     setState(() => _isLoading = true);
 
-    try {
-      String? token = await ApiService.loginPembeli(phone, password);
+    // TODO: Nanti kita hubungkan dengan ApiService untuk tembak OTP Fonnte di Laravel
+    await Future.delayed(
+      const Duration(seconds: 2),
+    ); // Simulasi loading sementara
 
-      if (token != null) {
-        _showSuccess("Login Berhasil!");
+    _showSuccess("Sedang memproses... (Fitur API menyusul)");
 
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-          );
-        }
-      } else {
-        _showError("Nomor HP atau Password salah.");
-      }
-    } catch (e) {
-      _showError("Error: Gagal terhubung ke API.");
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    if (mounted) setState(() => _isLoading = false);
   }
 
   void _showError(String msg) => ScaffoldMessenger.of(
@@ -57,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showSuccess(String msg) => ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.green));
+  ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.blue));
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  "Masuk Ke Akun Anda",
+                  "Daftar Akun Baru",
                   style: TextStyle(
                     color: Color.fromARGB(255, 43, 126, 47),
                     fontSize: 14,
@@ -102,13 +89,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // 1. INPUT NOMOR HP
+                // INPUT NAMA LENGKAP
+                TextField(
+                  controller: _nameController,
+                  keyboardType: TextInputType.name,
+                  style: TextStyle(color: colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Nama Lengkap (Username)',
+                    prefixIcon: Icon(
+                      Icons.person_outline,
+                      color: colorScheme.primary,
+                    ),
+                    filled: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF8BC34A),
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF4CAF50),
+                        width: 2.5,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // INPUT NOMOR HP
                 TextField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Nomor HP',
+                    labelText: 'Nomor HP (WhatsApp Aktif)',
                     prefixIcon: Icon(
                       Icons.phone_android,
                       color: colorScheme.primary,
@@ -132,13 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // 2. INPUT PASSWORD BARU
+                // INPUT PASSWORD
                 TextField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   style: TextStyle(color: colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Password Baru',
                     prefixIcon: Icon(
                       Icons.lock_outline,
                       color: colorScheme.primary,
@@ -173,32 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 30),
 
-                // LUPA PASSWORD
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.only(top: 8, bottom: 8),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    onPressed: () {
-                      // TODO: Arahkan ke Halaman Lupa Password OTP
-                      _showSuccess("Fitur Lupa Password segera hadir!");
-                    },
-                    child: const Text(
-                      "Lupa Password?",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                // TOMBOL LOGIN
+                // TOMBOL DAFTAR
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -210,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
-                    onPressed: _isLoading ? null : _handleLogin,
+                    onPressed: _isLoading ? null : _handleRegister,
                     child: _isLoading
                         ? const SizedBox(
                             height: 20,
@@ -221,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           )
                         : const Text(
-                            "Masuk",
+                            "Daftar & Kirim OTP",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -230,14 +224,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
-                // TOMBOL DAFTAR
+                // TOMBOL KEMBALI KE LOGIN
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Belum punya akun?",
+                      "Sudah punya akun?",
                       style: TextStyle(
                         color: colorScheme.onSurface.withOpacity(0.6),
                         fontSize: 13,
@@ -249,15 +243,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
+                        Navigator.pop(context); // Kembali ke halaman Login
                       },
                       child: Text(
-                        "Daftar Sekarang",
+                        "Masuk di sini",
                         style: TextStyle(
                           color: colorScheme.secondary,
                           fontWeight: FontWeight.bold,

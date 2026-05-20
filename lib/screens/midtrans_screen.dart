@@ -23,7 +23,7 @@ class _MidtransPaymentScreenState extends State<MidtransPaymentScreen> {
   void initState() {
     super.initState();
 
-    // URL ajaib dari Midtrans yang menggabungkan token dari Laravel
+    // URL dari Midtrans 
     final String midtransUrl =
         'https://app.sandbox.midtrans.com/snap/v2/vtweb/${widget.snapToken}';
 

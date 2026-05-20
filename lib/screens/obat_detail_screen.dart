@@ -50,7 +50,6 @@ class ObatDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // TAMPILKAN LOGO 'K' HANYA JIKA OBAT KERAS
                   if (isObatKeras)
                     Container(
                       margin: const EdgeInsets.only(bottom: 10),
