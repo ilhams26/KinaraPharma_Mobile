@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   // VPS = "http://kelompok9.my.id/api"
   // Lokal = http://10.0.2.2:8000/api
-  static const String baseUrl = "http://kelompok9.my.id/api";
+  static const String baseUrl = "https://kelompok9.my.id/api";
 
   static Future<Map<String, dynamic>?> getProfile() async {
     try {

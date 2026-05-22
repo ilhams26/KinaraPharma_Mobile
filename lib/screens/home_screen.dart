@@ -153,7 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final obat = medicines[index];
                         final imageUrl =
-                            'https://deon-experimental-dalton.ngrok-free.dev/storage/${obat['foto']}';
+                            // 'https://deon-experimental-dalton.ngrok-free.dev/storage/${obat['foto']}';
+                            "https://kelompok9.my.id/storage/${obat['foto']}";
 
                         return GestureDetector(
                           onTap: () => Navigator.push(

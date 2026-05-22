@@ -9,9 +9,10 @@ class OrderService {
     String tokenLogin,
     List<Map<String, dynamic>> keranjang,
   ) async {
-    // GANTI SESUAI URL NGROK
+    // SESUAIKAN URL
     final String apiUrl =
-        'https://deon-experimental-dalton.ngrok-free.dev/api/midtrans/checkout';
+        // 'https://https://deon-experimental-dalton.ngrok-free.dev/api/midtrans/checkout';
+        'https://kelompok9.my.id/api/midtrans/checkout';
 
     try {
       final response = await http.post(
