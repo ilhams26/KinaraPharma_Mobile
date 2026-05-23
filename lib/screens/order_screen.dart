@@ -22,8 +22,8 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   Future<void> _fetchOrders() async {
-    const String apiUrl =
-        'https://deon-experimental-dalton.ngrok-free.dev/api/orders';
+    const String apiUrl = 'https://kelompok9.my.id/api/orders';
+    // 'https://deon-experimental-dalton.ngrok-free.dev/api/orders';
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -57,7 +57,7 @@ class OrderService {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Terjadi Kesalahan : Cek koneksi atau URL Ngrok Anda.'),
+          content: Text('Terjadi Kesalahan : Cek koneksi atau URL Anda.'),
           backgroundColor: Colors.red,
         ),
       );
