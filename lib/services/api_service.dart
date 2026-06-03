@@ -61,6 +61,48 @@ class ApiService {
     }
   }
 
+  static Future<bool> resetPassword(
+    String phone,
+    String otp,
+    String newPassword,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/reset-password"),
+        headers: {'Accept': 'application/json'},
+        body: {'no_hp': phone, 'otp': otp, 'new_password': newPassword},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error Reset Password: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> changePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? tokenLogin = prefs.getString('token');
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/change-password'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $tokenLogin',
+        },
+        body: {'old_password': oldPassword, 'new_password': newPassword},
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error Change Password: $e");
+      return false;
+    }
+  }
+
   static Future<List<dynamic>> getMedicines({
     String? search,
     int? kategoriId,
