@@ -26,9 +26,9 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
     try {
       final pickedFile = await _picker.pickImage(
         source: source,
-        imageQuality: 60, // <-- KUNCI 1
-        maxWidth: 1200, // <-- KUNCI 2
-        maxHeight: 1200, // <-- KUNCI 3
+        imageQuality: 60,
+        maxWidth: 1200,
+        maxHeight: 1200,
       );
       if (pickedFile != null) {
         setState(() => _image = File(pickedFile.path));
@@ -46,6 +46,8 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
       _image!.path,
       widget.obatId,
     );
+
+    if (!mounted) return;
 
     setState(() => _isUploading = false);
 
