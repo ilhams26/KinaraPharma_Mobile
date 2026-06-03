@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart'; 
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -21,21 +22,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String password = _passwordController.text.trim();
 
     if (name.isEmpty) return _showError("Nama Lengkap tidak boleh kosong.");
-    if (phone.isEmpty || phone.length < 10)
+    if (phone.isEmpty || phone.length < 10) {
       return _showError("Nomor HP tidak valid.");
-    if (password.isEmpty || password.length < 6)
+    }
+    if (password.isEmpty || password.length < 6) {
       return _showError("Password minimal 6 karakter.");
+    }
 
     setState(() => _isLoading = true);
 
-    // TODO: Nanti kita hubungkan dengan ApiService untuk tembak OTP Fonnte di Laravel
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // Simulasi loading sementara
-
-    _showSuccess("Sedang memproses... (Fitur API menyusul)");
+    // 🚨 EKSEKUSI: Tembak ke API Laravel via ApiService
+    bool sukses = await ApiService.registerPembeli(name, phone, password);
 
     if (mounted) setState(() => _isLoading = false);
+
+    if (sukses) {
+      _showSuccess("Pendaftaran berhasil! Silakan masuk.");
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      _showError("Pendaftaran gagal. Nomor HP mungkin sudah terdaftar.");
+    }
   }
 
   void _showError(String msg) => ScaffoldMessenger.of(
@@ -44,7 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _showSuccess(String msg) => ScaffoldMessenger.of(
     context,
-  ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.blue));
+  ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.green));
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // INPUT NAMA LENGKAP
+                // INPUT NAMA 
                 TextField(
                   controller: _nameController,
                   keyboardType: TextInputType.name,
@@ -215,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           )
                         : const Text(
-                            "Daftar & Kirim OTP",
+                            "Daftar Akun", 
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -226,7 +235,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 const SizedBox(height: 20),
 
-                // TOMBOL KEMBALI KE LOGIN
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -243,7 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       onPressed: () {
-                        Navigator.pop(context); // Kembali ke halaman Login
+                        Navigator.pop(context);
                       },
                       child: Text(
                         "Masuk di sini",
