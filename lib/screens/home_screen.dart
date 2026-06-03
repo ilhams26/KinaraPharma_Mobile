@@ -220,23 +220,54 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(
                                         width: double.infinity,
                                         child: ElevatedButton(
-                                          onPressed: () async {
-                                            await CartService.addToCart(obat);
+                                          onPressed: () async {                                  
+                                            bool isObatKeras =
+                                                obat['jenis'] == 'keras';
 
-                                            if (context.mounted) {
+                                            if (isObatKeras) {
+
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                SnackBar(
+                                                const SnackBar(
                                                   content: Text(
-                                                    "${obat['nama']} berhasil ditambah ke keranjang!",
+                                                    "Obat Keras! Wajib lampirkan resep di halaman ini.",
                                                   ),
-                                                  backgroundColor: Colors.green,
-                                                  duration: const Duration(
-                                                    seconds: 1,
+                                                  backgroundColor:
+                                                      Colors.orange,
+                                                  duration: Duration(
+                                                    seconds: 2,
                                                   ),
                                                 ),
                                               );
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ObatDetailScreen(
+                                                        obat: obat,
+                                                      ),
+                                                ),
+                                              );
+                                            } else {
+                                              await CartService.addToCart(obat);
+
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "${obat['nama']} berhasil ditambah ke keranjang!",
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                    duration: const Duration(
+                                                      seconds: 1,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
                                             }
                                           },
                                           child: const Text("Tambah"),

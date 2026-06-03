@@ -23,12 +23,18 @@ class _UploadResepScreenState extends State<UploadResepScreen> {
   bool _isUploading = false;
 
   Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(
-      source: source,
-      imageQuality: 80,
-    );
-    if (pickedFile != null) {
-      setState(() => _image = File(pickedFile.path));
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        imageQuality: 60, // <-- KUNCI 1
+        maxWidth: 1200, // <-- KUNCI 2
+        maxHeight: 1200, // <-- KUNCI 3
+      );
+      if (pickedFile != null) {
+        setState(() => _image = File(pickedFile.path));
+      }
+    } catch (e) {
+      debugPrint("Error ambil gambar: $e");
     }
   }
 
