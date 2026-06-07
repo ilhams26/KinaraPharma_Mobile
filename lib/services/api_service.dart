@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // VPS = "http://kelompok9.my.id/api"
+  // VPS = "https://kelompok9.my.id/api"
   // Lokal = http://10.0.2.2:8000/api
   static const String baseUrl = "https://kelompok9.my.id/api";
 
@@ -29,6 +29,75 @@ class ApiService {
     } catch (e) {
       print("Error Profile: $e");
       return null;
+    }
+  }
+  //  NOTIFIKASI
+  static Future<List<dynamic>> getNotifications() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      if (token == null) return [];
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifications'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['data'] ?? [];
+      }
+      return [];
+    } catch (e) {
+      print("Error Fetch Notifications: $e");
+      return [];
+    }
+  }
+
+  static Future<int> getUnreadNotificationCount() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      if (token == null) return 0;
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifications/unread-count'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['unread_count'] ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      print("Error Fetch Unread Count: $e");
+      return 0;
+    }
+  }
+
+  static Future<bool> markNotificationAsRead(String id) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      if (token == null) return false;
+
+      final response = await http.patch(
+        Uri.parse('$baseUrl/notifications/$id'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Error Mark as Read: $e");
+      return false;
     }
   }
 

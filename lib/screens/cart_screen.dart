@@ -182,8 +182,20 @@ class _CartScreenState extends State<CartScreen> {
                                   color: colorScheme.primary,
                                 ),
                                 onPressed: () {
-                                  item['qty']++;
-                                  _updateCartData();
+                                  int maxStok = item['stok_total'] ?? 999;
+                                  if (item['qty'] < maxStok) {
+                                    item['qty']++;
+                                    _updateCartData();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Stok obat ini sudah habis / mencapai batas maksimal!",
+                                        ),
+                                        backgroundColor: Colors.orange,
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                               const SizedBox(width: 8),
@@ -289,11 +301,12 @@ class _CartScreenState extends State<CartScreen> {
                           itemsToCheckout,
                         );
 
-                        // 4. Jika berhasil, bersihkan item yang dicentang
                         if (isSuccess) {
                           setState(() {
                             cartItems.removeWhere((i) => i['selected'] == true);
                           });
+                          _updateCartData();
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Pesanan berhasil dibuat!"),

@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import 'cart_screen.dart';
 import 'obat_detail_screen.dart';
 import '../services/cart_service.dart';
+import 'notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> medicines = [];
   bool isLoading = true;
+  int unreadNotifCount = 0; // <-- Variabel Penampung Jumlah Notif
 
   String? currentSearch;
   int? currentKategoriId;
@@ -29,17 +31,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchData() async {
     setState(() => isLoading = true);
 
+    // Ambil jumlah notif yang belum dibaca dari API
+    final unreadCount = await ApiService.getUnreadNotificationCount();
     final profileData = await ApiService.getProfile();
-
     final data = await ApiService.getMedicines(
       search: currentSearch,
       kategoriId: currentKategoriId,
     );
+
     setState(() {
       if (profileData != null && profileData['username'] != null) {
         namaUser = profileData['username'];
       }
       medicines = data;
+      unreadNotifCount = unreadCount; // <-- Update titik merah
       isLoading = false;
     });
   }
@@ -61,6 +66,49 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Image.asset('assets/images/logo_kinara.png', height: 40),
         actions: [
+          // 🚨 IKON NOTIFIKASI
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                onPressed: () async {
+                  // Pindah ke halaman Notifikasi, TUNGGU sampai kembali
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationScreen(),
+                    ),
+                  );
+                  // Refresh beranda (biar titik merahnya update/hilang)
+                  _fetchData();
+                },
+              ),
+              // TITIK MERAH (Hanya muncul jika ada notif > 0)
+              if (unreadNotifCount > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      unreadNotifCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+          // IKON KERANJANG
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             onPressed: () => Navigator.push(
@@ -153,7 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final obat = medicines[index];
                         final imageUrl =
-                            // 'https://deon-experimental-dalton.ngrok-free.dev/storage/${obat['foto']}';
                             "https://kelompok9.my.id/storage/${obat['foto']}";
 
                         return GestureDetector(
@@ -220,18 +267,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(
                                         width: double.infinity,
                                         child: ElevatedButton(
-                                          onPressed: () async {                                  
+                                          onPressed: () async {
+                                            // CEGAT OBAT KERAS
                                             bool isObatKeras =
                                                 obat['jenis'] == 'keras';
 
                                             if (isObatKeras) {
-
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
                                                 const SnackBar(
                                                   content: Text(
-                                                    "Obat Keras! Wajib lampirkan resep di halaman ini.",
+                                                    "Obat Keras! Wajib lampirkan resep di halaman detail.",
                                                   ),
                                                   backgroundColor:
                                                       Colors.orange,
@@ -251,7 +298,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                               );
                                             } else {
                                               await CartService.addToCart(obat);
-
                                               if (context.mounted) {
                                                 ScaffoldMessenger.of(
                                                   context,
