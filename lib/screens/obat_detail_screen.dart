@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'upload_resep_screen.dart';
+import '../services/cart_service.dart'; // WAJIB IMPORT INI
 
 class ObatDetailScreen extends StatelessWidget {
   final dynamic obat;
@@ -18,11 +19,14 @@ class ObatDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    bool isObatKeras = obat['jenis'] == 'keras';
 
+    bool isObatKeras = obat['jenis'] == 'keras';
     String namaObat = obat['nama'] ?? "Obat";
     String idObat = obat['id'].toString();
+    int stokTotal = int.tryParse(obat['stok_total']?.toString() ?? '0') ?? 0;
+
+    // JALUR GAMBAR VPS
+    String imageUrl = "https://kelompok9.my.id/storage/${obat['foto']}";
 
     return Scaffold(
       appBar: AppBar(
@@ -39,11 +43,21 @@ class ObatDetailScreen extends StatelessWidget {
               width: double.infinity,
               height: 250,
               color: isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade200,
-              child: const Icon(
-                Icons.medication_liquid,
-                size: 100,
-                color: Colors.grey,
-              ),
+              child: obat['foto'] != null
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.medication_liquid,
+                        size: 100,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.medication_liquid,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(20.0),
@@ -79,13 +93,27 @@ class ObatDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    "Rp ${formatRupiah(obat['harga'])}",
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Rp ${formatRupiah(obat['harga'])}",
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      // INFO STOK TAMPIL DI SINI
+                      Text(
+                        "Stok: $stokTotal",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: stokTotal > 0 ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -110,7 +138,7 @@ class ObatDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     const Text(
-                      "Ini adalah obat keras. Anda wajib melampirkan resep dokter asli untuk membeli obat ini.",
+                      "Ini adalah obat keras. Anda wajib melampirkan resep dokter untuk membeli .",
                       style: TextStyle(color: Colors.grey, height: 1.5),
                     ),
                   ],
@@ -159,11 +187,29 @@ class ObatDetailScreen extends StatelessWidget {
                     ),
                   )
                 : ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("$namaObat masuk keranjang!")),
-                      );
-                      Navigator.pop(context);
+                    onPressed: () async {
+                      // KINI BENAR-BENAR MASUK KERANJANG
+                      try {
+                        await CartService.addToCart(obat);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("$namaObat masuk keranjang!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          Navigator.pop(context); // Balik ke Home
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Gagal memasukkan ke keranjang"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
                     },
                     icon: const Icon(Icons.shopping_cart),
                     label: const Text(

@@ -15,11 +15,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> medicines = [];
   bool isLoading = true;
-  int unreadNotifCount = 0; // <-- Variabel Penampung Jumlah Notif
+  int unreadNotifCount = 0;
 
   String? currentSearch;
   int? currentKategoriId;
-
   String namaUser = "Pengguna";
 
   @override
@@ -30,8 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchData() async {
     setState(() => isLoading = true);
-
-    // Ambil jumlah notif yang belum dibaca dari API
     final unreadCount = await ApiService.getUnreadNotificationCount();
     final profileData = await ApiService.getProfile();
     final data = await ApiService.getMedicines(
@@ -44,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
         namaUser = profileData['username'];
       }
       medicines = data;
-      unreadNotifCount = unreadCount; // <-- Update titik merah
+      unreadNotifCount = unreadCount;
       isLoading = false;
     });
   }
@@ -66,25 +63,21 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Image.asset('assets/images/logo_kinara.png', height: 40),
         actions: [
-          // 🚨 IKON NOTIFIKASI
           Stack(
             alignment: Alignment.center,
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
                 onPressed: () async {
-                  // Pindah ke halaman Notifikasi, TUNGGU sampai kembali
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const NotificationScreen(),
                     ),
                   );
-                  // Refresh beranda (biar titik merahnya update/hilang)
                   _fetchData();
                 },
               ),
-              // TITIK MERAH (Hanya muncul jika ada notif > 0)
               if (unreadNotifCount > 0)
                 Positioned(
                   right: 8,
@@ -107,14 +100,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
             ],
           ),
-
-          // IKON KERANJANG
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const CartScreen()),
-            ),
+            ).then((_) => _fetchData()),
           ),
         ],
       ),
@@ -133,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
               TextField(
                 onChanged: (value) {
                   currentSearch = value;
@@ -151,7 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 25),
-
               const Text(
                 "Kategori",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -176,13 +165,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 25),
-
               const Text(
                 "Katalog Obat",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
-
               isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : medicines.isEmpty
@@ -268,10 +255,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         width: double.infinity,
                                         child: ElevatedButton(
                                           onPressed: () async {
-                                            // CEGAT OBAT KERAS
                                             bool isObatKeras =
                                                 obat['jenis'] == 'keras';
-
                                             if (isObatKeras) {
                                               ScaffoldMessenger.of(
                                                 context,
@@ -297,22 +282,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                               );
                                             } else {
-                                              await CartService.addToCart(obat);
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      "${obat['nama']} berhasil ditambah ke keranjang!",
-                                                    ),
-                                                    backgroundColor:
-                                                        Colors.green,
-                                                    duration: const Duration(
-                                                      seconds: 1,
-                                                    ),
-                                                  ),
+                                              try {
+                                                await CartService.addToCart(
+                                                  obat,
                                                 );
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        "${obat['nama']} berhasil ditambah ke keranjang!",
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                      duration: const Duration(
+                                                        seconds: 1,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        "Gagal masuk keranjang, coba lagi.",
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                }
                                               }
                                             }
                                           },

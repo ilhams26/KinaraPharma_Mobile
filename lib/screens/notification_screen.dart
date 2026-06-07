@@ -30,10 +30,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Future<void> _markAsRead(String id, bool isRead) async {
-    if (isRead) return; // Kalau udah dibaca, gak usah nembak API lagi
+    if (isRead) return;
     bool sukses = await ApiService.markNotificationAsRead(id);
     if (sukses) {
-      _fetchNotifications(); // Refresh list biar background putih/titik merah hilang
+      _fetchNotifications();
     }
   }
 
@@ -130,7 +130,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         ),
                       ),
                       onTap: () async {
-                        // 1. TANDAI DIBACA
                         await _markAsRead(notif['id'].toString(), isRead);
 
                         String title = (notif['title'] ?? "")
@@ -138,7 +137,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             .toLowerCase();
                         String message = (notif['message'] ?? "").toString();
 
-                        // 2. CEK JIKA INI NOTIFIKASI RESEP DISETUJUI
                         if (title.contains("disetujui") ||
                             title.contains("valid") ||
                             title.contains("acc")) {
@@ -149,7 +147,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               false;
 
                           if (isUsed) {
-                            // Jika sudah pernah diklik sebelumnya
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -161,44 +158,45 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               );
                             }
                           } else {
-                            // Tampilkan Loading
-                            if (context.mounted) {
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) => const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
+                            // TANGKAP NAVIGATOR DI AWAL BIAR GAK NYANGKUT!
+                            final navigator = Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            );
+                            final messenger = ScaffoldMessenger.of(context);
 
-                            //  CARI OBAT BERDASARKAN PESAN
-                            final allMedicines =
-                                await ApiService.getMedicines();
-                            dynamic obatTarget;
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
 
-                            for (var obat in allMedicines) {
-                              if (message.toLowerCase().contains(
-                                obat['nama'].toString().toLowerCase(),
-                              )) {
-                                obatTarget = obat;
-                                break;
+                            try {
+                              final allMedicines =
+                                  await ApiService.getMedicines();
+                              dynamic obatTarget;
+
+                              for (var obat in allMedicines) {
+                                if (message.toLowerCase().contains(
+                                  obat['nama'].toString().toLowerCase(),
+                                )) {
+                                  obatTarget = obat;
+                                  break;
+                                }
                               }
-                            }
 
-                            if (context.mounted)
-                              Navigator.pop(context); // Tutup Loading
+                              navigator.pop(); // PASTI TERTUTUP!
 
-                            if (obatTarget != null) {
-                              // 4. MASUKKAN KERANJANG & KUNCI
-                              await CartService.addToCart(obatTarget);
-                              await prefs.setBool(
-                                'resep_used_${notif['id']}',
-                                true,
-                              ); // KUNCI!
+                              if (obatTarget != null) {
+                                await CartService.addToCart(obatTarget);
+                                await prefs.setBool(
+                                  'resep_used_${notif['id']}',
+                                  true,
+                                );
 
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       "${obatTarget['nama']} berhasil dimasukkan ke keranjang!",
@@ -206,30 +204,39 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     backgroundColor: Colors.green,
                                   ),
                                 );
-                              }
-                            } else {
-                              // Jika nama obat tidak disebut di notif
-                              if (context.mounted) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text("Resep Disetujui"),
-                                    content: const Text(
-                                      "Resep Anda valid. Silakan cari obat tersebut di beranda dan tambahkan ke keranjang secara manual.",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text("Tutup"),
+                              } else {
+                                if (context.mounted) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text("Resep Disetujui"),
+                                      content: const Text(
+                                        "Resep Anda valid. Silakan cari obat tersebut di beranda dan tambahkan ke keranjang secara manual.",
                                       ),
-                                    ],
-                                  ),
-                                );
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text("Tutup"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
                               }
+                            } catch (e) {
+                              navigator.pop(); // TUTUP JIKA ERROR!
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Terjadi kesalahan jaringan saat mengambil obat.",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
                             }
                           }
                         } else {
-                          // JIKA NOTIFIKASI BIASA
                           if (context.mounted) {
                             showDialog(
                               context: context,

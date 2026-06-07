@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../screens/midtrans_screen.dart';
+import '../services/cart_service.dart';
 
 class OrderService {
   static Future<bool> prosesCheckoutReal(
@@ -9,10 +10,7 @@ class OrderService {
     String tokenLogin,
     List<Map<String, dynamic>> keranjang,
   ) async {
-    // SESUAIKAN URL
-    final String apiUrl =
-        // 'https://https://deon-experimental-dalton.ngrok-free.dev/api/midtrans/checkout';
-        'https://kelompok9.my.id/api/midtrans/checkout';
+    final String apiUrl = 'https://kelompok9.my.id/api/midtrans/checkout';
 
     try {
       final response = await http.post(
@@ -41,6 +39,17 @@ class OrderService {
         );
 
         if (result == true) {
+          // BERSIHKAN KERANJANG 
+          final currentCart = await CartService.getCart();
+          final boughtIds = keranjang
+              .map((e) => e['obat_id'].toString())
+              .toList();
+
+          currentCart.removeWhere(
+            (item) => boughtIds.contains(item['id'].toString()),
+          );
+          await CartService.saveCart(currentCart);
+
           return true;
         }
         return false;
@@ -56,7 +65,7 @@ class OrderService {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Terjadi Kesalahan : Cek koneksi atau URL Anda.'),
           backgroundColor: Colors.red,
         ),
